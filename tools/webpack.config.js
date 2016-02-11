@@ -11,6 +11,8 @@ import path from 'path';
 import webpack from 'webpack';
 import extend from 'extend';
 import AssetsPlugin from 'assets-webpack-plugin';
+import nib from 'nib';
+import axis from 'axis';
 
 const DEBUG = !process.argv.includes('--release');
 const VERBOSE = process.argv.includes('--verbose');
@@ -73,12 +75,12 @@ const config = {
         ],
         loader: 'babel-loader',
       }, {
-        test: /\.scss$/,
+        test: /\.styl$/,
         loaders: [
           'isomorphic-style-loader',
           `css-loader?${DEBUG ? 'sourceMap&' : 'minimize&'}modules&localIdentName=` +
           `${DEBUG ? '[name]_[local]_[hash:base64:3]' : '[hash:base64:4]'}`,
-          'postcss-loader?parser=postcss-scss',
+          'stylus-loader',
         ],
       }, {
         test: /\.json$/,
@@ -96,13 +98,14 @@ const config = {
     ],
   },
 
-  postcss: function plugins(bundler) {
-    return [
-      require('postcss-import')({ addDependencyTo: bundler }),
-      require('precss')(),
-      require('autoprefixer')({ browsers: AUTOPREFIXER_BROWSERS }),
-    ];
-  },
+
+   stylus: {
+    use: [nib(), axis()],
+    import: ['~nib/lib/nib/index.styl'],
+    error: DEBUG ? true : false,
+    compress: DEBUG ? false: true,
+    'include css': DEBUG ? false : true
+  }
 };
 
 //
